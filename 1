@@ -1,0 +1,115 @@
+#include <stdio.h>
+#include <malloc.h>
+
+struct element {
+	struct element *parent;
+	struct element *left;
+	int number;
+	struct element *right;
+} *begin;
+
+struct element * insert(int obj, struct element * ptr)
+{
+	if (ptr != NULL) {
+		if ((ptr->number) == 0) {
+			ptr->number = obj;
+		}
+		else {
+			if (obj >= (ptr->number)) {
+				ptr->right = insert(obj, ptr->right);
+				ptr->right->parent = ptr;
+			}
+			else {
+				ptr->left = insert(obj, ptr->left);
+				ptr->left->parent = ptr;
+			}
+		}
+	}
+	else {
+		ptr = (struct element*) malloc(sizeof(struct element));
+		ptr->number = obj;
+		ptr->right = ptr->left = NULL;
+	}
+	return ptr;
+}
+
+void print(struct element * root)
+{
+	if (root != NULL)
+	{
+		print(root->left);
+		printf("element = %d\n", root->number);
+		print(root->right);
+	}
+}
+
+struct element * find(int obj, struct element *ptr) {
+	struct element * aa = NULL;
+
+	if (ptr != NULL) {
+		if (obj == (ptr->number)) aa = ptr;
+		else if (obj > (ptr->number)) {
+			aa = find(obj, ptr->right);
+		}
+		else {
+			aa = find(obj, ptr->left);
+		}
+	}
+	return aa;
+}
+
+void replace(int a, int b, struct element * ptr) {
+	struct element * aa = find(a, ptr);
+	struct element * bb = find(b, ptr);
+
+	if (aa != NULL && bb != NULL) {
+		aa->number = b;
+		bb->number = a;
+	}
+	else printf("Exception: One or more of the numbers are missing\n");
+}
+
+int verify(struct element *ptr) {
+
+	struct element *l = ptr->left;
+	struct element *r = ptr->right;
+
+	if (ptr->left != NULL) {
+		if (ptr->number < ptr->left->number)
+			return 0;
+		else return verify(ptr->left);
+	}
+	else if (ptr->right != NULL) {
+		if (ptr->number > ptr->right->number)
+			return 0;
+		else return verify(ptr->right);
+	}
+	else return 1;
+
+}
+
+int main(void) {
+
+	int x;
+	begin = (struct element*) malloc(sizeof(struct element));
+	begin->number = 0;
+	begin->left = NULL;
+	begin->right = NULL;
+	begin->parent = NULL;
+
+	insert(5, begin);
+	insert(3, begin);
+	insert(4, begin);
+	insert(1, begin);
+	insert(7, begin);
+	print(begin);
+	if (verify(begin) == 0) printf("a very bad bst tree\n");
+	else printf("a fine example of a bst tree\n");
+
+	replace(5, 1, begin);
+	print(begin);
+	if (verify(begin) == 0) printf("a very bad bst tree\n");
+	else printf("a fine example of a bst tree\n");
+
+	return 0;
+}
